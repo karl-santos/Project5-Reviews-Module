@@ -14,4 +14,10 @@
     <Folder Include="DTOs\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\app.js" />
+    <None Include="wwwroot\index.html" />
+    <None Include="wwwroot\style.css" />
+  </ItemGroup>
+
 </Project>
