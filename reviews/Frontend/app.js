@@ -3,13 +3,22 @@
 // Get URL parameters when page loads
 window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
+    const productName = urlParams.get('productName');
     const productId = urlParams.get('productId');
     const userId = urlParams.get('userId');
 
     // Pre-fill and disable if values exist
+    if (productName) {
+        document.getElementById('productName').value = productName;
+        document.getElementById('productName').disabled = true;
+    }
+
     if (productId) {
         document.getElementById('productId').value = productId;
         document.getElementById('productId').disabled = true;
+        
+        // Load reviews for this product automatically
+        loadReviews(productId);
     }
 
     if (userId) {
@@ -44,7 +53,7 @@ document.getElementById('reviewForm').addEventListener('submit', async (e) => {
                 '<p class="success">Review submitted successfully!</p>';
             document.getElementById('comment').value = '';
             document.getElementById('rating').value = '';
-            loadReviews();
+            loadReviews(review.productID);
         } else {
             const error = await response.text();
             document.getElementById('message').innerHTML =
@@ -57,16 +66,16 @@ document.getElementById('reviewForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Load all reviews
-async function loadReviews() {
+// Load reviews for a specific product
+async function loadReviews(productId) {
     try {
-        const response = await fetch(`${API_URL}/product`);
+        const response = await fetch(`${API_URL}/product/${productId}`);
         const reviews = await response.json();
 
         const reviewsDiv = document.getElementById('reviews');
 
         if (reviews.length === 0) {
-            reviewsDiv.innerHTML = '<p>No reviews yet.</p>';
+            reviewsDiv.innerHTML = '<p>No reviews yet for this product.</p>';
             return;
         }
 
