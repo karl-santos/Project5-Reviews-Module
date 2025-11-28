@@ -1,0 +1,41 @@
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using reviews.Models;
+
+namespace reviews.Services
+{
+    public class ApiReviewStore : IReviewStore
+    {
+        private readonly HttpClient _client;
+
+        public ApiReviewStore(HttpClient client, IConfiguration config)
+        {
+            _client = client;
+            // such as : "https://projectv.space/database-api"
+            _client.BaseAddress = new Uri(config["DatabaseApi:BaseUrl"]);
+        }
+
+        public ProductReview SaveProductReview(ProductReview review)
+        {
+            // sync call 
+            var response = _client.PostAsJsonAsync("/reviews/product", review).Result;
+            response.EnsureSuccessStatusCode();
+            return response.Content.ReadFromJsonAsync<ProductReview>().Result!;
+        }
+
+        public List<ProductReview> GetProductReviews(string productId)
+        {
+            var response = _client.GetAsync($"/reviews/product/{productId}").Result;
+            response.EnsureSuccessStatusCode();
+            return response.Content.ReadFromJsonAsync<List<ProductReview>>().Result ?? new List<ProductReview>();
+        }
+
+        // Renta can just be removed but I am doing it anyways
+        public RentalReview SaveRentalReview(RentalReview review) { /* TODO */ throw new NotImplementedException(); }
+        public List<RentalReview> GetRentalReviews(string rentalId) { /* TODO */ throw new NotImplementedException(); }
+
+        public TeamReview SaveTeamReview(TeamReview review) { /* TODO */ throw new NotImplementedException(); }
+        public List<TeamReview> GetTeamReviews(string teamId) { /* TODO */ throw new NotImplementedException(); }
+    }
+}

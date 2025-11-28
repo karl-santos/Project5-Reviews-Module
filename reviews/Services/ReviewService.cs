@@ -1,16 +1,29 @@
-﻿using reviews.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using reviews.Models;
 
 namespace reviews.Services
 {
     public class ReviewService
     {
+        private readonly IReviewStore _store;
 
+        // Expose the lists 
+        public List<ProductReview> ProductReviews => _store.ProductReviews;
+        public List<RentalReview> RentalReviews => _store.RentalReviews;
+        public List<TeamReview> TeamReviews => _store.TeamReviews;
 
-        public List<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
-        public List<RentalReview> RentalReviews { get; set; } = new List<RentalReview>();
-        public List<TeamReview> TeamReviews { get; set; } = new List<TeamReview>();
+        // Used by tests 
+        public ReviewService() : this(new InMemoryReviewStore())
+        {
+        }
 
-
+        // Used by Program.cs
+        public ReviewService(IReviewStore store)
+        {
+            _store = store;
+        }
 
         // Add a product review
         public ProductReview AddProductReview(string productId, string userId, string comment, int rating)
@@ -27,11 +40,7 @@ namespace reviews.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-
-            // save to in-memory list for demo purposes
-            ProductReviews.Add(review);
-
-            // Save to database here
+            _store.ProductReviews.Add(review);
             return review;
         }
 
@@ -50,10 +59,7 @@ namespace reviews.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-
-            // save to in-memory list for demo purposes
-            RentalReviews.Add(review);
-            // Save to database here
+            _store.RentalReviews.Add(review);
             return review;
         }
 
@@ -72,16 +78,16 @@ namespace reviews.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-
-            TeamReviews.Add(review);
-            // Save to database here
+            _store.TeamReviews.Add(review);
             return review;
         }
 
         // Get average rating for a product
         public double GetAverageProductRating(string productId)
         {
-            var reviews = ProductReviews.Where(r => r.ProductID == productId).ToList();
+            var reviews = _store.ProductReviews
+                .Where(r => r.ProductID == productId)
+                .ToList();
 
             if (reviews.Count == 0)
                 return 0;

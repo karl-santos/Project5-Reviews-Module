@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using reviews.Models;
 using reviews.Services;
 
@@ -10,11 +14,13 @@ namespace reviews.Controllers
     {
         private readonly ILogger<ReviewController> _logger;
         private readonly ReviewService _reviewService;
+        private readonly EmailService _emailService;
 
-        public ReviewController(ILogger<ReviewController> logger, ReviewService reviewService)
+        public ReviewController(ILogger<ReviewController> logger, ReviewService reviewService, EmailService emailService)
         {
             _logger = logger;
             _reviewService = reviewService;
+            _emailService = emailService;
         }
 
         // POST: api/review/product
@@ -112,6 +118,24 @@ namespace reviews.Controllers
                 .ToList();
             return Ok(reviews);
         }
+
+        // POST: api/review/test-email (test email sending)
+        [HttpPost("test-email")]
+        public ActionResult TestEmail([FromBody] EmailTestRequest request)
+        {
+            try
+            {
+                _emailService.SendReviewRequestEmail(
+                    request.ToEmail,
+                    request.ProductID,
+                    request.OrderID);
+                return Ok(new { message = "Email sent! Check your inbox and console logs." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 
     // Request DTOs
@@ -137,5 +161,12 @@ namespace reviews.Controllers
         public string UserID { get; set; }
         public string Comment { get; set; }
         public int Rating { get; set; }
+    }
+
+    public class EmailTestRequest
+    {
+        public string ToEmail { get; set; }
+        public string ProductID { get; set; }
+        public string OrderID { get; set; }
     }
 }

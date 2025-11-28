@@ -1,25 +1,35 @@
-﻿const API_URL = 'https://localhost:7213/api/review';
+﻿// Use relative URL so it works locally and on server
+const API_URL = '/api/review';
 
 // Initialize page
 window.addEventListener('DOMContentLoaded', () => {
+    // Get URL parameters (for POS integration)
     const urlParams = new URLSearchParams(window.location.search);
     const productName = urlParams.get('productName');
     const productId = urlParams.get('productId');
     const userId = urlParams.get('userId');
+    const orderId = urlParams.get('orderId');
 
+    // Pre-fill info if provided
     if (productName) {
         document.getElementById('productName').value = productName;
         document.getElementById('displayProductName').textContent = productName;
     }
-
+    
     if (productId) {
         document.getElementById('productId').value = productId;
         document.getElementById('displayProductId').textContent = productId;
         loadReviews(productId);
     }
-
+    
     if (userId) {
         document.getElementById('userId').value = userId;
+    }
+
+    // Store order ID if provided when db is up and running
+    if (orderId) {
+        console.log('Order ID:', orderId);
+        // This can be used to link review to specific transaction
     }
 });
 
