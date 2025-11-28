@@ -81,6 +81,71 @@ namespace reviews.Tests
 
             Assert.Equal(5, avgP1);
             Assert.Equal(1, avgP2);
+
+        }
+        
+
+        //  helper function to not repeat code
+        private double GetAverageProductRatingSafe(ReviewService service, string productId)
+        {
+            return service.GetAverageProductRating(productId);
+        }
+
+        
+        [Fact]
+        public void AddTeamReview_ValidInput_AddsToTeamListOnly()
+        {
+            // team review should only touch TeamReviews list
+            var service = new ReviewService();
+
+            var review = service.AddTeamReview("T1", "U1", "Good team", 5);
+
+            Assert.Single(service.TeamReviews);
+            Assert.Empty(service.ProductReviews);
+            Assert.Empty(service.RentalReviews);
+
+            Assert.Equal("T1", review.TeamID);
+            Assert.Equal("U1", review.UserID);
+            Assert.Equal(5, review.Rating);
+        }
+        // Regression tests
+
+        [Fact]
+        public void Regression_AddProductReview_MultipleCalls_KeepAllReviewsInMemory()
+        {
+            // just making sure we do not overwrite or clear old reviews
+            var service = new ReviewService();
+
+            service.AddProductReview("P1", "U1", "First", 4);
+            service.AddProductReview("P1", "U2", "Second", 5);
+
+            Assert.Equal(2, service.ProductReviews.Count);
+            Assert.Contains(service.ProductReviews, r => r.UserID == "U1" && r.Comment == "First");
+            Assert.Contains(service.ProductReviews, r => r.UserID == "U2" && r.Comment == "Second");
+        }
+
+        [Fact]
+        public void Regression_GetAverageProductRating_EmptyList_StillReturnsZero_NotException()
+        {
+            // if someone changes the code later, we still expect 0 amd not a crash
+            var service = new ReviewService();
+
+            var avg = service.GetAverageProductRating("UNKNOWN");
+
+            Assert.Equal(0, avg);
+        }
+
+        [Fact]
+        public void Regression_AddProductReview_UsesUtcTimeForCreatedAt()
+        {
+            // CreatedAt should be set using UTC so time is consistent everywhere
+            var service = new ReviewService();
+
+            var review = service.AddProductReview("P1", "U1", "Time check", 4);
+            var delta = DateTime.UtcNow - review.CreatedAt;
+
+            Assert.True(delta >= TimeSpan.Zero);
+            Assert.True(delta < TimeSpan.FromSeconds(5));
         }
     }
 }
