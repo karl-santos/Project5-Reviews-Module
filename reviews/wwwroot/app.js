@@ -1,7 +1,7 @@
-﻿// Use relative URL so it works locally and on server
+﻿// URL so it works locally and on server
 const API_URL = '/api/review';
 
-// Initialize page
+// start page
 window.addEventListener('DOMContentLoaded', () => {
     // Get URL parameters (for POS integration)
     const urlParams = new URLSearchParams(window.location.search);
@@ -107,7 +107,7 @@ async function loadReviews(productId) {
             Average rating: <strong>${avgRating}</strong> / 5
         `;
 
-        // Display reviews (newest first)
+        // Display reviews 
         reviewsDiv.innerHTML = reviews
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .map(review => {
@@ -131,3 +131,4 @@ async function loadReviews(productId) {
             '<div class="error">Failed to load reviews.</div>';
     }
 }
+
