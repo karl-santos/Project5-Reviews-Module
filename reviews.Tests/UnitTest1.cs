@@ -53,5 +53,34 @@ namespace reviews.Tests
 
             Assert.Equal(0, avg);
         }
+
+         [Fact]
+        public void GetAverageProductRating_MultipleReviews_ComputesCorrectAverage()
+        {
+            //average check: (3 + 5 + 2) / 3 = 3.33
+            var service = new ReviewService();
+            service.AddProductReview("P1", "U1", "ok", 3);
+            service.AddProductReview("P1", "U2", "good", 5);
+            service.AddProductReview("P1", "U3", "meh", 2);
+
+            var avg = service.GetAverageProductRating("P1");
+
+            Assert.Equal(3.33, Math.Round(avg, 2));
+        }
+
+        [Fact]
+        public void GetAverageProductRating_IgnoresOtherProducts()
+        {
+            // make sure ratings for different product IDs don't get mixed
+            var service = new ReviewService();
+            service.AddProductReview("P1", "U1", "p1", 5);
+            service.AddProductReview("P2", "U2", "p2", 1);
+
+            var avgP1 = service.GetAverageProductRating("P1");
+            var avgP2 = service.GetAverageProductRating("P2");
+
+            Assert.Equal(5, avgP1);
+            Assert.Equal(1, avgP2);
+        }
     }
 }
