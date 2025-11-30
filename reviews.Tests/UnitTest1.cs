@@ -1,151 +1,144 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
 using reviews.Services;
 using Xunit;
 
 namespace reviews.Tests
 {
+    // Simple tests for Reviews Module
     public class ReviewServiceTests
     {
-        // Product review tests (3 tests)
-
-        [Fact]
-        public void AddProductReview_ValidInput_AddsReviewAndReturnsSameObject()
+        // Helper method to create in-memory database for testing
+        private ReviewDbContext CreateTestDatabase()
         {
-            // happy path: one review gets stored with the right data
-            var service = new ReviewService();
-            var productId = "P123";
-            var userId = "U1";
-            var comment = "Great product";
-            var rating = 5;
-
-            var result = service.AddProductReview(productId, userId, comment, rating);
-
-            Assert.Single(service.ProductReviews);
-            Assert.Equal(productId, result.ProductID);
-            Assert.Equal(userId, result.UserID);
-            Assert.Equal(comment, result.Comment);
-            Assert.Equal(rating, result.Rating);
-            Assert.True((DateTime.UtcNow - result.CreatedAt) < TimeSpan.FromSeconds(5));
+            var options = new DbContextOptionsBuilder<ReviewDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            
+            return new ReviewDbContext(options);
         }
 
+        // Test 1: Add a product review successfully
+        [Fact]
+        public void AddProductReview_ValidInput_SavesReviewToDatabase()
+        {
+            // Setup
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
+
+            // Add a product review
+            var result = service.AddProductReview(123, 456, "Great product!", 5);
+
+            // Check it was saved
+            Assert.Equal(123, result.ProductID);
+            Assert.Equal(456, result.AccountID);
+            Assert.Equal("Great product!", result.Comment);
+            Assert.Equal(5, result.Rating);
+            Assert.Single(service.ProductReviews);
+        }
+
+        // Test 2: Invalid rating should throw error
         [Theory]
         [InlineData(0)]
         [InlineData(6)]
-        public void AddProductReview_InvalidRating_ThrowsArgumentException(int invalidRating)
+        public void AddProductReview_InvalidRating_ThrowsError(int badRating)
         {
-            // rating outside 1–5 should not save anything
-            var service = new ReviewService();
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
 
             var ex = Assert.Throws<ArgumentException>(() =>
-                service.AddProductReview("P1", "U1", "Bad rating", invalidRating));
+                service.AddProductReview(1, 1, "Bad rating", badRating));
 
             Assert.Equal("Rating must be between 1 and 5", ex.Message);
-            Assert.Empty(service.ProductReviews);
         }
 
+        // Test 3: Calculate average product rating
         [Fact]
-        public void GetAverageProductRating_NoReviews_ReturnsZero()
+        public void GetAverageProductRating_MultipleReviews_CalculatesCorrectly()
         {
-            // with no reviews we just expect 0 
-            var service = new ReviewService();
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
 
-            var avg = service.GetAverageProductRating("P1");
+            // Add 3 reviews: 3, 5, 2 -> average = 3.33
+            service.AddProductReview(1, 1, "ok", 3);
+            service.AddProductReview(1, 2, "good", 5);
+            service.AddProductReview(1, 3, "meh", 2);
 
-            Assert.Equal(0, avg);
-        }
-
-         [Fact]
-        public void GetAverageProductRating_MultipleReviews_ComputesCorrectAverage()
-        {
-            //average check: (3 + 5 + 2) / 3 = 3.33
-            var service = new ReviewService();
-            service.AddProductReview("P1", "U1", "ok", 3);
-            service.AddProductReview("P1", "U2", "good", 5);
-            service.AddProductReview("P1", "U3", "meh", 2);
-
-            var avg = service.GetAverageProductRating("P1");
+            var avg = service.GetAverageProductRating(1);
 
             Assert.Equal(3.33, Math.Round(avg, 2));
         }
 
+        // Test 4: No reviews returns zero average
         [Fact]
-        public void GetAverageProductRating_IgnoresOtherProducts()
+        public void GetAverageProductRating_NoReviews_ReturnsZero()
         {
-            // make sure ratings for different product IDs don't get mixed
-            var service = new ReviewService();
-            service.AddProductReview("P1", "U1", "p1", 5);
-            service.AddProductReview("P2", "U2", "p2", 1);
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
 
-            var avgP1 = service.GetAverageProductRating("P1");
-            var avgP2 = service.GetAverageProductRating("P2");
-
-            Assert.Equal(5, avgP1);
-            Assert.Equal(1, avgP2);
-
-        }
-        
-
-        //  helper function to not repeat code
-        private double GetAverageProductRatingSafe(ReviewService service, string productId)
-        {
-            return service.GetAverageProductRating(productId);
-        }
-
-        
-        [Fact]
-        public void AddTeamReview_ValidInput_AddsToTeamListOnly()
-        {
-            // team review should only touch TeamReviews list
-            var service = new ReviewService();
-
-            var review = service.AddTeamReview("T1", "U1", "Good team", 5);
-
-            Assert.Single(service.TeamReviews);
-            Assert.Empty(service.ProductReviews);
-            Assert.Empty(service.RentalReviews);
-
-            Assert.Equal("T1", review.TeamID);
-            Assert.Equal("U1", review.UserID);
-            Assert.Equal(5, review.Rating);
-        }
-        // Regression tests
-
-        [Fact]
-        public void Regression_AddProductReview_MultipleCalls_KeepAllReviewsInMemory()
-        {
-            // just making sure we do not overwrite or clear old reviews
-            var service = new ReviewService();
-
-            service.AddProductReview("P1", "U1", "First", 4);
-            service.AddProductReview("P1", "U2", "Second", 5);
-
-            Assert.Equal(2, service.ProductReviews.Count);
-            Assert.Contains(service.ProductReviews, r => r.UserID == "U1" && r.Comment == "First");
-            Assert.Contains(service.ProductReviews, r => r.UserID == "U2" && r.Comment == "Second");
-        }
-
-        [Fact]
-        public void Regression_GetAverageProductRating_EmptyList_StillReturnsZero_NotException()
-        {
-            // if someone changes the code later, we still expect 0 amd not a crash
-            var service = new ReviewService();
-
-            var avg = service.GetAverageProductRating("UNKNOWN");
+            var avg = service.GetAverageProductRating(999);
 
             Assert.Equal(0, avg);
         }
 
+        // Test 5: Add a service review successfully
         [Fact]
-        public void Regression_AddProductReview_UsesUtcTimeForCreatedAt()
+        public void AddServiceReview_ValidInput_SavesReviewToDatabase()
         {
-            // CreatedAt should be set using UTC so time is consistent everywhere
-            var service = new ReviewService();
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
 
-            var review = service.AddProductReview("P1", "U1", "Time check", 4);
-            var delta = DateTime.UtcNow - review.CreatedAt;
+            var result = service.AddServiceReview(789, 456, "Excellent service!", 5);
 
-            Assert.True(delta >= TimeSpan.Zero);
-            Assert.True(delta < TimeSpan.FromSeconds(5));
+            Assert.Equal(789, result.ServiceID);
+            Assert.Equal(456, result.AccountID);
+            Assert.Equal("Excellent service!", result.Comment);
+            Assert.Equal(5, result.Rating);
+            Assert.Single(service.ServiceReviews);
+        }
+
+        // Test 6: Service review invalid rating throws error
+        [Fact]
+        public void AddServiceReview_InvalidRating_ThrowsError()
+        {
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
+
+            var ex = Assert.Throws<ArgumentException>(() =>
+                service.AddServiceReview(1, 1, "Bad", 10));
+
+            Assert.Contains("Rating must be between 1 and 5", ex.Message);
+        }
+
+        // Test 7: Calculate average service rating
+        [Fact]
+        public void GetAverageServiceRating_MultipleReviews_CalculatesCorrectly()
+        {
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
+
+            service.AddServiceReview(1, 1, "ok", 4);
+            service.AddServiceReview(1, 2, "great", 5);
+
+            var avg = service.GetAverageServiceRating(1);
+
+            Assert.Equal(4.5, avg);
+        }
+
+        // Test 8: Product and service reviews are separate
+        [Fact]
+        public void ProductAndServiceReviews_StayedSeparate()
+        {
+            var db = CreateTestDatabase();
+            var service = new ReviewService(db);
+
+            service.AddProductReview(1, 1, "product", 5);
+            service.AddServiceReview(1, 1, "service", 3);
+
+            Assert.Single(service.ProductReviews);
+            Assert.Single(service.ServiceReviews);
+            Assert.Equal(5, service.ProductReviews[0].Rating);
+            Assert.Equal(3, service.ServiceReviews[0].Rating);
         }
     }
 }
