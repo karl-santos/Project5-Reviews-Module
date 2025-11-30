@@ -80,9 +80,9 @@ namespace reviews.Services
         <p>
             <a href='{reviewUrl}' class='button'>Leave Your Review ⭐</a>
         </p>
-        <p>Your feedback helps us improve and helps other customers make better decisions!</p>
+        <p>Your feedback is DEEPLYYYYYYYYYYYYYY RTAHHHHH Appreciated</p>
         <div class='footer'>
-            <p>Thanks for being awesome! 😊<br>- The Reviews Team</p>
+            <p>Thanks for being chill fam 😊<br>- The Reviews Team</p>
         </div>
     </div>
 </body>
