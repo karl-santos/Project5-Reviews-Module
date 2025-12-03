@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['rating_0',['Rating',['../classreviews_1_1_controllers_1_1_product_review_request.html#aae8f41fa600419bd985a71e02c51f69b',1,'reviews.Controllers.ProductReviewRequest.Rating'],['../classreviews_1_1_controllers_1_1_service_review_request.html#a833c898ead0d1313fde53444cdcfda0b',1,'reviews.Controllers.ServiceReviewRequest.Rating'],['../classreviews_1_1_models_1_1_review_base.html#afd75d01380b57bd74ab73b83c2db84ce',1,'reviews.Models.ReviewBase.Rating']]],
+  ['requestreview_1',['RequestReview',['../classreviews_1_1_controllers_1_1_review_controller.html#a889d52e3a4713a5b801af6a27216d273',1,'reviews::Controllers::ReviewController']]],
+  ['reviewapiintegrationtests_2',['ReviewApiIntegrationTests',['../classreviews_1_1_tests_1_1_review_api_integration_tests.html',1,'reviews.Tests.ReviewApiIntegrationTests'],['../classreviews_1_1_tests_1_1_review_api_integration_tests.html#aaaae6325ff208270e9f5008c384bbaf1',1,'reviews.Tests.ReviewApiIntegrationTests.ReviewApiIntegrationTests()']]],
+  ['reviewapiintegrationtests_2ecs_3',['ReviewApiIntegrationTests.cs',['../_review_api_integration_tests_8cs.html',1,'']]],
+  ['reviewbase_4',['ReviewBase',['../classreviews_1_1_models_1_1_review_base.html',1,'reviews::Models']]],
+  ['reviewbase_2ecs_5',['ReviewBase.cs',['../_review_base_8cs.html',1,'']]],
+  ['reviewcontroller_6',['ReviewController',['../classreviews_1_1_controllers_1_1_review_controller.html',1,'reviews.Controllers.ReviewController'],['../classreviews_1_1_controllers_1_1_review_controller.html#af5b15776cb103095abe81361c976da49',1,'reviews.Controllers.ReviewController.ReviewController()']]],
+  ['reviewcontroller_2ecs_7',['ReviewController.cs',['../_review_controller_8cs.html',1,'']]],
+  ['reviewdbcontext_8',['ReviewDbContext',['../classreviews_1_1_services_1_1_review_db_context.html',1,'reviews.Services.ReviewDbContext'],['../classreviews_1_1_services_1_1_review_db_context.html#a58d5cf6117f72053759d307d46fdfa60',1,'reviews.Services.ReviewDbContext.ReviewDbContext()']]],
+  ['reviewdbcontext_2ecs_9',['ReviewDbContext.cs',['../_review_db_context_8cs.html',1,'']]],
+  ['reviewid_10',['ReviewID',['../classreviews_1_1_models_1_1_review_base.html#a3a368b57ea5ff3471ff706da811cc84b',1,'reviews::Models::ReviewBase']]],
+  ['reviewrequestdto_11',['ReviewRequestDTO',['../classreviews_1_1_controllers_1_1_review_request_d_t_o.html',1,'reviews::Controllers']]],
+  ['reviews_12',['reviews',['../namespacereviews.html',1,'']]],
+  ['reviews_3a_3acontrollers_13',['Controllers',['../namespacereviews_1_1_controllers.html',1,'reviews']]],
+  ['reviews_3a_3amodels_14',['Models',['../namespacereviews_1_1_models.html',1,'reviews']]],
+  ['reviews_3a_3aservices_15',['Services',['../namespacereviews_1_1_services.html',1,'reviews']]],
+  ['reviews_3a_3atests_16',['Tests',['../namespacereviews_1_1_tests.html',1,'reviews']]],
+  ['reviewservice_17',['ReviewService',['../classreviews_1_1_services_1_1_review_service.html',1,'reviews.Services.ReviewService'],['../classreviews_1_1_services_1_1_review_service.html#a22227c7119f7a259860a409745887ba2',1,'reviews.Services.ReviewService.ReviewService()']]],
+  ['reviewservice_2ecs_18',['ReviewService.cs',['../_review_service_8cs.html',1,'']]],
+  ['reviewservicetests_19',['ReviewServiceTests',['../classreviews_1_1_tests_1_1_review_service_tests.html',1,'reviews::Tests']]],
+  ['run_20',['Run',['../_program_8cs.html#aaa3dbf02e269c3ef7e8546d290c6b3dd',1,'Program.cs']]]
+];
